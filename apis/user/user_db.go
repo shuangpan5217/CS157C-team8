@@ -1,30 +1,40 @@
 package user
 
-import "time"
+import (
+	"net/http"
+	"time"
+
+	constants "CS157C-TEAM8/apis/constants"
+
+	"github.com/go-chi/render"
+)
 
 var userTableName = "user"
 
 type UserPost struct {
-	Username    string     `json:"username" db:"username"`
+	Username    string     `json:"username"`
 	Description string     `json:"description"`
-	HashValue   string     `json:"hashvalue"`
 	Nickname    string     `json:"nickname"`
 	Password    string     `json:"password"`
 	CreatedTime *time.Time `json:"created_time"`
 }
 
 type UserUpdate struct {
-	Description string `json:"description"`
-	Nickname    string `json:"nickname"`
+	Username    string  `json:"username"`
+	Description *string `json:"description,omitempty"`
+	Nickname    *string `json:"nickname,omitempty"`
 }
 
-type ErrorResponse struct {
-	Message       string
-	Error         string
-	MessageStatus int
-}
-
-type SuccessResponse struct {
-	Message       string
-	MessageStatus int
+func GenerateUserSuccessResponse(w http.ResponseWriter, r *http.Request, successMessage string, statusCode int, user UserPost) {
+	w.WriteHeader(statusCode)
+	render.JSON(w, r, constants.SuccessResponse{
+		Message:        "success",
+		SuccessMessage: successMessage,
+		StatusCode:     statusCode,
+		Body: map[string]string{
+			"usernaame":   user.Username,
+			"nickname":    user.Nickname,
+			"description": user.Description,
+		},
+	})
 }
