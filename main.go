@@ -13,22 +13,26 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func init() {
+func main() {
 	var err error
 	cluster := gocql.NewCluster("127.0.0.1")
 	cluster.Keyspace = "pan"
 	constants.Session, err = cluster.CreateSession()
+
+	defer constants.Session.Close()
+
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("cassandra well initialized")
-}
 
-func main() {
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/createuser", user.CreateUser).Methods("POST")
+	router.HandleFunc("/login", user.CreateUser).Methods("POST")
+	router.HandleFunc("/updateuser", user.UpdateUser).Methods("Patch")
 	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS", "PATCH"})
 	origins := handlers.AllowedOrigins([]string{"*"})
+
+	fmt.Println("connecting to localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", handlers.CORS(headers, methods, origins)(router)))
 }
