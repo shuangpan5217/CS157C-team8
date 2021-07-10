@@ -92,11 +92,11 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if user.Nickname != nil && user.Description != nil {
-		err = constants.Session.Query("UPDATE "+userTableName+" set description = ?, nickname = ? WHERE username = ?", user.Description, user.Nickname, user.Username).Exec()
+		err = constants.Session.Query("UPDATE "+userTableName+` set description = ?, nickname = ? WHERE username = ?`, user.Description, user.Nickname, user.Username).Exec()
 	} else if user.Nickname != nil {
-		err = constants.Session.Query("UPDATE "+userTableName+" set nickname = ? WHERE username = ?", user.Nickname, user.Username).Exec()
+		err = constants.Session.Query("UPDATE "+userTableName+` set nickname = ? WHERE username = ?`, user.Nickname, user.Username).Exec()
 	} else if user.Description != nil {
-		err = constants.Session.Query("UPDATE "+userTableName+" set description = ? WHERE username = ?", user.Description, user.Username).Exec()
+		err = constants.Session.Query("UPDATE "+userTableName+` set description = ? WHERE username = ?`, user.Description, user.Username).Exec()
 	}
 
 	if err != nil {
@@ -117,7 +117,7 @@ func GetUserFromDB(users []UserPost, username string) []UserPost {
 	m := make(map[string]interface{})
 	// get user in database
 
-	iterator := constants.Session.Query("SELECT * FROM "+userTableName+" WHERE username = ? LIMIT 1", username).Iter()
+	iterator := constants.Session.Query(`SELECT * FROM `+userTableName+` WHERE username = ? LIMIT 1`, username).Iter()
 	for iterator.MapScan(m) {
 		users = append(users, UserPost{
 			Username:    m["username"].(string),
