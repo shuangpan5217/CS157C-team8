@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/render"
 )
 
-var userTableName = "user"
+var userTableName = constants.KeySpaceName + ".user"
 
 type UserPost struct {
 	Username    string     `json:"username"`
