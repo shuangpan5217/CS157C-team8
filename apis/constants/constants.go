@@ -26,7 +26,7 @@ type SuccessResponse struct {
 func GenerateErrorResponse(w http.ResponseWriter, r *http.Request, err error, statusCode int) {
 	w.WriteHeader(statusCode)
 	render.JSON(w, r, ErrorResponse{
-		Message:    "Error encountered",
+		Message:    "failure",
 		Error:      err.Error(),
 		StatusCode: statusCode,
 	})
