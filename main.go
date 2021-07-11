@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"CS157C-TEAM8/apis/constants"
+	"CS157C-TEAM8/apis/secret"
 	"CS157C-TEAM8/apis/user"
 
 	"github.com/go-chi/render"
@@ -42,8 +43,12 @@ func main() {
 
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", homeLink)
+
 	router.HandleFunc("/login", user.CreateUser).Methods("POST")
 	router.HandleFunc("/updateuser", user.UpdateUser).Methods("Patch")
+
+	router.HandleFunc("/addsecret", secret.CreateSecret)
+
 	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS", "PATCH"})
 	origins := handlers.AllowedOrigins([]string{"*"})

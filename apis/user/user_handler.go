@@ -11,10 +11,6 @@ import (
 	"CS157C-TEAM8/apis/constants"
 )
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -31,6 +27,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.Unmarshal(reqBody, &newUser) // new user
+
+	if newUser.Username == "" {
+		constants.GenerateErrorResponse(w, r, errors.New("username is required in request Body"), http.StatusBadRequest)
+		return
+	}
+	if newUser.Password == "" {
+		constants.GenerateErrorResponse(w, r, errors.New("password is required in request Body"), http.StatusBadRequest)
+		return
+	}
 
 	users = GetUserFromDB(users, newUser.Username)
 
@@ -55,6 +60,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		} else {
 			constants.GenerateErrorResponse(w, r, errors.New("username has been taken."), http.StatusConflict)
 		}
+	} else if signup != "true" && signup != "" {
+		constants.GenerateErrorResponse(w, r, errors.New("Please assign correct query string."), http.StatusBadRequest)
 	} else {
 		// signin
 		// if there is no username in the database
@@ -132,6 +139,8 @@ func GetUserFromDB(users []UserPost, username string) []UserPost {
 }
 
 func GenerateRandomNickname(n int) string {
+	rand.Seed(time.Now().UnixNano())
+
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = letterRunes[rand.Intn(len(letterRunes))]

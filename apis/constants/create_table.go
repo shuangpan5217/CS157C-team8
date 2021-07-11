@@ -13,7 +13,7 @@ const (
 	KeySpaceName           = "pan"
 	createKeySpace         = "CREATE KEYSPACE IF NOT EXISTS " + KeySpaceName + " WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }"
 	createUserTable        = "CREATE TABLE IF NOT EXISTS " + KeySpaceName + ".user (username text, password text, nickname text, description text, created_time timestamp, primary key(username))"
-	createSecretTable      = "create table IF NOT EXISTS " + KeySpaceName + ".secret (secret_id uuid, username text, nickname text, content text, created_time timestamp, primary key(secret_id))"
+	createSecretTable      = "create table IF NOT EXISTS " + KeySpaceName + ".secret (secret_id uuid, username text, nickname text, content text, created_time timestamp, primary key(username, secret_id))"
 	createSavedSecretTable = "create table IF NOT EXISTS " + KeySpaceName + ".saved_secret(secret_id uuid, username text, content text, nickname text, primary key(secret_id, username))"
 	createCommentTable     = "create table IF NOT EXISTS " + KeySpaceName + ".comment (comment_id uuid, secret_id uuid, created_time timestamp, comment text, nickname text, primary key(comment_id))"
 )
