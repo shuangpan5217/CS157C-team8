@@ -12,6 +12,8 @@ import (
 	"CS157C-TEAM8/apis/user"
 
 	"github.com/gocql/gocql"
+	"github.com/google/uuid"
+	"github.com/spf13/cast"
 )
 
 func CreateSecret(w http.ResponseWriter, r *http.Request) {
@@ -65,6 +67,11 @@ func GetSecret(w http.ResponseWriter, r *http.Request) {
 	username := querys.Get("username")
 	if username == "" {
 		constants.GenerateErrorResponse(w, r, errors.New("username is not set."), http.StatusBadRequest)
+		return
+	}
+	if len(user.GetUserFromDB([]user.UserPost{}, username)) == 0 {
+		constants.GenerateErrorResponse(w, r, errors.New("Incorrect username."), http.StatusBadRequest)
+		return
 	}
 	// get ten secret from
 	secret, err := GetOneSecretFromDB(username)
@@ -83,21 +90,23 @@ func GetOneSecretFromDB(username string) (*SecretGet, error) {
 	m := make(map[string]interface{})
 	for iterator.MapScan(m) {
 		secrets = append(secrets, SecretGet{
+			Username:    m["username"].(string),
 			Nickname:    m["nickname"].(string),
 			Content:     m["content"].(string),
-			SecretID:    m["secret_id"].(string),
-			CreatedTime: m["created_time"].(*time.Time),
+			SecretID:    cast.ToString(m["secret_id"]),
+			CreatedTime: m["created_time"].(time.Time),
 		})
 		m = make(map[string]interface{})
 	}
 
-	iterator = constants.Session.Query("SELECT * FROM "+SecretTableName+" WHERE token(username) > token(?) LIMIT ?", username, 10-len(secrets)).Iter()
+	iterator = constants.Session.Query("SELECT * FROM "+SecretTableName+" WHERE token(username) < token(?) LIMIT ?", username, 10-len(secrets)).Iter()
 	for iterator.MapScan(m) {
 		secrets = append(secrets, SecretGet{
+			Username:    m["username"].(string),
 			Nickname:    m["nickname"].(string),
 			Content:     m["content"].(string),
-			SecretID:    m["secret_id"].(string),
-			CreatedTime: m["created_time"].(*time.Time),
+			SecretID:    cast.ToString(m["secret_id"]),
+			CreatedTime: m["created_time"].(time.Time),
 		})
 		m = make(map[string]interface{})
 	}
@@ -113,7 +122,75 @@ func GetOneSecretFromDB(username string) (*SecretGet, error) {
 }
 
 func DeleteSecret(w http.ResponseWriter, r *http.Request) {
+	resp, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
+		return
+	}
 
+	secretDelete := SecretDelete{}
+	json.Unmarshal(resp, &secretDelete)
+
+	if secretDelete.SecretID == nil {
+		constants.GenerateErrorResponse(w, r, errors.New("secret id is not set."), http.StatusBadRequest)
+		return
+	}
+
+	if secretDelete.Username == nil {
+		constants.GenerateErrorResponse(w, r, errors.New("username is not set."), http.StatusBadRequest)
+		return
+	}
+
+	secretID := *secretDelete.SecretID
+	username := *secretDelete.Username
+
+	secretGet, err := CheckIfSecretExists(secretID)
+	if err != nil {
+		constants.GenerateErrorResponse(w, r, err, http.StatusNotFound)
+		return
+	}
+	if username != secretGet.Username {
+		constants.GenerateErrorResponse(w, r, errors.New("username doesn't match secret id"), http.StatusBadRequest)
+		return
+	}
+
+	err = DeleteSecretFromDB(secretID, username)
+	if err != nil {
+		constants.GenerateErrorResponse(w, r, err, http.StatusInternalServerError)
+		return
+	}
+
+	secretUUID, _ := uuid.Parse(secretID)
+	GeneratePostSecretSuccessResponse(w, r, "The secret is successfully deleted.", http.StatusOK, gocql.UUID(secretUUID))
+}
+
+func CheckIfSecretExists(secretID string) (*SecretGet, error) {
+	iterator := constants.Session.Query("SELECT * FROM "+SecretTableName+" WHERE secret_id = ? LIMIT 1 ALLOW FILTERING", secretID).Iter()
+	if iterator.NumRows() == 0 {
+		return nil, errors.New("secret doesn't exist.")
+	}
+
+	secrets := []SecretGet{}
+	m := make(map[string]interface{})
+	for iterator.MapScan(m) {
+		secrets = append(secrets, SecretGet{
+			Username:    m["username"].(string),
+			Nickname:    m["nickname"].(string),
+			Content:     m["content"].(string),
+			SecretID:    cast.ToString(m["secret_id"]),
+			CreatedTime: m["created_time"].(time.Time),
+		})
+		m = make(map[string]interface{})
+	}
+	return &secrets[0], nil
+}
+
+func DeleteSecretFromDB(secretID, username string) error {
+	err := constants.Session.Query("DELETE from "+SecretTableName+" WHERE username = ? and secret_id = ?", username, secretID).Exec()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func checkIfUsernameAndNicknameMatch(secretPost SecretPost) bool {

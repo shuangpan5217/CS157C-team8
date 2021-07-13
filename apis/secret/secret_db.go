@@ -21,10 +21,16 @@ type SecretPost struct {
 }
 
 type SecretGet struct {
-	SecretID    string     `json:"secret_id"`
-	Content     string     `json:"content"`
-	CreatedTime *time.Time `json:"created_time"`
-	Nickname    string     `json:"nickname"`
+	Username    string    `json:"username"`
+	SecretID    string    `json:"secret_id"`
+	Content     string    `json:"content"`
+	CreatedTime time.Time `json:"created_time"`
+	Nickname    string    `json:"nickname"`
+}
+
+type SecretDelete struct {
+	Username *string `json:"username"`
+	SecretID *string `json:"secret_id"`
 }
 
 func GenerateGetSecretSuccessResponse(w http.ResponseWriter, r *http.Request, successMessage string, statusCode int, secret SecretGet) {
@@ -34,6 +40,7 @@ func GenerateGetSecretSuccessResponse(w http.ResponseWriter, r *http.Request, su
 		SuccessMessage: successMessage,
 		StatusCode:     statusCode,
 		Body: map[string]string{
+			"username":     secret.Username,
 			"nickname":     secret.Nickname,
 			"content":      secret.Content,
 			"secret_id":    secret.SecretID,

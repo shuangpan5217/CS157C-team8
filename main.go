@@ -17,7 +17,7 @@ import (
 
 func init() {
 	// set default host
-	// will be overrided by docker 'docker run' command
+	// will be overrided by docker env variable when run 'docker run' command
 	if os.Getenv(constants.CASSANDRA_URL) == "" {
 		os.Setenv(constants.CASSANDRA_URL, "127.0.0.1:9042")
 	}
@@ -48,6 +48,8 @@ func main() {
 	router.HandleFunc("/updateuser", user.UpdateUser).Methods("Patch")
 
 	router.HandleFunc("/addsecret", secret.CreateSecret)
+	router.HandleFunc("/getsecret", secret.GetSecret)
+	router.HandleFunc("/deletesecret", secret.DeleteSecret)
 
 	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS", "PATCH"})
