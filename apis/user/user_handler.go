@@ -22,11 +22,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		constants.GenerateErrorResponse(w, r, err, http.StatusInternalServerError)
+		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
 		return
 	}
 
-	json.Unmarshal(reqBody, &newUser) // new user
+	err = json.Unmarshal(reqBody, &newUser) // new user
+	if err != nil {
+		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
+		return
+	}
 
 	if newUser.Username == "" {
 		constants.GenerateErrorResponse(w, r, errors.New("username is required in request Body"), http.StatusBadRequest)
@@ -88,11 +92,15 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		constants.GenerateErrorResponse(w, r, err, http.StatusInternalServerError)
+		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
 		return
 	}
 
-	json.Unmarshal(reqBody, &user)
+	err = json.Unmarshal(reqBody, &user)
+	if err != nil {
+		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
+		return
+	}
 	users = GetUserFromDB(users, user.Username)
 	if len(users) == 0 {
 		constants.GenerateErrorResponse(w, r, errors.New("user doesn't exist."), http.StatusUnauthorized)

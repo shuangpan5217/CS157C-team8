@@ -21,11 +21,15 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		constants.GenerateErrorResponse(w, r, err, http.StatusInternalServerError)
+		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
 		return
 	}
 
-	json.Unmarshal(reqBody, &secretPost) // new user
+	err = json.Unmarshal(reqBody, &secretPost) // new user
+	if err != nil {
+		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
+		return
+	}
 
 	if secretPost.Username == "" {
 		constants.GenerateErrorResponse(w, r, errors.New("username is required in request Body"), http.StatusBadRequest)
@@ -40,7 +44,7 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !checkIfUsernameAndNicknameMatch(secretPost) {
+	if !CheckIfUsernameAndNicknameMatch(secretPost) {
 		constants.GenerateErrorResponse(w, r, errors.New("username or nickname is not correct."), http.StatusBadRequest)
 		return
 	}
@@ -130,6 +134,10 @@ func DeleteSecret(w http.ResponseWriter, r *http.Request) {
 
 	secretDelete := SecretDelete{}
 	json.Unmarshal(resp, &secretDelete)
+	if err != nil {
+		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
+		return
+	}
 
 	if secretDelete.SecretID == nil {
 		constants.GenerateErrorResponse(w, r, errors.New("secret id is not set."), http.StatusBadRequest)
@@ -193,7 +201,7 @@ func DeleteSecretFromDB(secretID, username string) error {
 	return nil
 }
 
-func checkIfUsernameAndNicknameMatch(secretPost SecretPost) bool {
+func CheckIfUsernameAndNicknameMatch(secretPost SecretPost) bool {
 	users := user.GetUserFromDB([]user.UserPost{}, secretPost.Username)
 	if len(users) == 0 {
 		return false
