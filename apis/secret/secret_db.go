@@ -17,7 +17,7 @@ type SecretPost struct {
 	Content     string     `json:"content"`
 	CreatedTime *time.Time `json:"created_time"`
 	Nickname    string     `json:"nickname"`
-	Username    string     `json:"username"`
+	Username    string     `json:"username"` // the person who created this secret
 }
 
 type SecretGet struct {
