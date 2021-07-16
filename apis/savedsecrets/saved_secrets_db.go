@@ -54,3 +54,15 @@ func GenerateGetSavedSecretSuccessResponse(w http.ResponseWriter, r *http.Reques
 		Body:           body,
 	})
 }
+
+func GenerateRemoveSavedSecretSuccessResponse(w http.ResponseWriter, r *http.Request, successMessage string, statusCode int, secret_id string) {
+	w.WriteHeader(statusCode)
+	render.JSON(w, r, constants.SuccessResponse{
+		Message:        "success",
+		SuccessMessage: successMessage,
+		StatusCode:     statusCode,
+		Body: map[string]string{
+			"secret_id": secret_id,
+		},
+	})
+}

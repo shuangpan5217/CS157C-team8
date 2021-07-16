@@ -13,7 +13,7 @@ import (
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var newUser = UserPost{} // used to fetch the user from Cassandra
 	var users = []UserPost{} // used to check if username exists or not
 
@@ -86,7 +86,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func UpdateUser(w http.ResponseWriter, r *http.Request) {
+func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var user = UserUpdate{} // used to update the user from Cassandra
 	var users = []UserPost{}
 

@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cast"
 )
 
-func SaveSecret(w http.ResponseWriter, r *http.Request) {
+func SaveSecretHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
@@ -78,7 +78,7 @@ func AddToFavoriteList(savedSecret SavedSecretPost) error {
 	return err
 }
 
-func GetAllFavoriteSecrets(w http.ResponseWriter, r *http.Request) {
+func GetAllFavoriteSecretsHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
@@ -111,6 +111,44 @@ func GetAllFavoriteSecrets(w http.ResponseWriter, r *http.Request) {
 	GenerateGetSavedSecretSuccessResponse(w, r, "All saved secrets", http.StatusOK, savedSecrets)
 }
 
-func RemoveSavedSecret(w http.ResponseWriter, r *http.Request) {
+func RemoveSavedSecretHandler(w http.ResponseWriter, r *http.Request) {
+	resp, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
+		return
+	}
+	savedSecret := SavedSecretPost{}
 
+	err = json.Unmarshal(resp, &savedSecret)
+	if err != nil {
+		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
+		return
+	}
+
+	err = CheckIfSecretExistsInFavoriteList(savedSecret)
+	if err != nil {
+		constants.GenerateErrorResponse(w, r, err, http.StatusNotFound)
+		return
+	}
+
+	err = RemoveSavedSecretFromDB(savedSecret)
+	if err != nil {
+		constants.GenerateErrorResponse(w, r, errors.New("Fail removing your saved secret, please try again."), http.StatusInternalServerError)
+		return
+	}
+
+	GenerateRemoveSavedSecretSuccessResponse(w, r, "Successfully removed from your favorite list.", http.StatusOK, savedSecret.SecretID)
+}
+
+func RemoveSavedSecretFromDB(savedSecret SavedSecretPost) error {
+	err := constants.Session.Query("DELETE FROM "+SavedSecretsTableName+" WHERE username = ? and secret_id = ?", savedSecret.Username, savedSecret.SecretID).Exec()
+	return err
+}
+
+func CheckIfSecretExistsInFavoriteList(savedSecret SavedSecretPost) error {
+	iterator := constants.Session.Query("SELECT * FROM "+SavedSecretsTableName+" WHERE username = ? and secret_id = ?", savedSecret.Username, savedSecret.SecretID).Iter()
+	if iterator.NumRows() == 0 {
+		return errors.New("secret not found")
+	}
+	return nil
 }

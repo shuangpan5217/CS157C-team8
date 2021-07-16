@@ -16,7 +16,7 @@ import (
 	"github.com/spf13/cast"
 )
 
-func CreateSecret(w http.ResponseWriter, r *http.Request) {
+func CreateSecretHandler(w http.ResponseWriter, r *http.Request) {
 	secretPost := SecretPost{}
 
 	reqBody, err := ioutil.ReadAll(r.Body)
@@ -65,7 +65,7 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 	GeneratePostSecretSuccessResponse(w, r, "Your secret have been added to the secret box!", http.StatusCreated, secretID)
 }
 
-func GetSecret(w http.ResponseWriter, r *http.Request) {
+func GetSecretHandler(w http.ResponseWriter, r *http.Request) {
 	// check if username is set
 	querys := r.URL.Query()
 	username := querys.Get("username")
@@ -125,7 +125,7 @@ func GetOneSecretFromDB(username string) (*SecretGet, error) {
 	return &secrets[index], nil
 }
 
-func DeleteSecret(w http.ResponseWriter, r *http.Request) {
+func DeleteSecretHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)

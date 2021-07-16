@@ -45,16 +45,16 @@ func main() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", homeLink)
 
-	router.HandleFunc("/login", user.CreateUser).Methods("POST")
-	router.HandleFunc("/updateuser", user.UpdateUser).Methods("Patch")
+	router.HandleFunc("/login", user.CreateUserHandler).Methods("POST")
+	router.HandleFunc("/updateuser", user.UpdateUserHandler).Methods("Patch")
 
-	router.HandleFunc("/secret", secret.CreateSecret).Methods("POST")
-	router.HandleFunc("/secret", secret.GetSecret).Methods("GET")
-	router.HandleFunc("/secret", secret.DeleteSecret).Methods("DELETE")
+	router.HandleFunc("/secret", secret.CreateSecretHandler).Methods("POST")
+	router.HandleFunc("/secret", secret.GetSecretHandler).Methods("GET")
+	router.HandleFunc("/secret", secret.DeleteSecretHandler).Methods("DELETE")
 
-	router.HandleFunc("/savedsecret", savedsecrets.SaveSecret).Methods("POST")
-	router.HandleFunc("/savedsecret", savedsecrets.GetAllFavoriteSecrets).Methods("GET")
-	router.HandleFunc("/savedsecret", savedsecrets.RemoveSavedSecret).Methods("DELETE")
+	router.HandleFunc("/savedsecret", savedsecrets.SaveSecretHandler).Methods("POST")
+	router.HandleFunc("/savedsecret", savedsecrets.GetAllFavoriteSecretsHandler).Methods("GET")
+	router.HandleFunc("/savedsecret", savedsecrets.RemoveSavedSecretHandler).Methods("DELETE")
 
 	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS", "PATCH"})
