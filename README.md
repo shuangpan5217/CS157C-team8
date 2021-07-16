@@ -49,6 +49,7 @@ After that, you can use API services from `localhost:3000`
     "username": "Tian",
     "password": "pass",
     "nickname": "nonono", // Optional
+    "description": "" // Optional
 }
 ```
 Successful Response
