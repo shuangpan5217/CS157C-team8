@@ -32,7 +32,7 @@ func GenerateUserSuccessResponse(w http.ResponseWriter, r *http.Request, success
 		SuccessMessage: successMessage,
 		StatusCode:     statusCode,
 		Body: map[string]string{
-			"usernaame":   user.Username,
+			"username":    user.Username,
 			"nickname":    user.Nickname,
 			"description": user.Description,
 		},
