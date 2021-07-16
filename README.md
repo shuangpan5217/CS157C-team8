@@ -357,5 +357,6 @@ Error response
 
 Request Body and response will be the same like above, but the secret will be added to SecretBos again.
 We can see this from Cassandra.
+![image](https://user-images.githubusercontent.com/24786635/125909765-72ea1e33-d552-4f26-8c9c-5c14008f8956.png)
 
 #### Comment API (TO BE DECIDED)
