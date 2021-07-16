@@ -55,14 +55,24 @@ func CreateSecretHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = constants.Session.Query(`INSERT INTO `+SecretTableName+` (secret_id, username, nickname, content, created_time) 
-	VALUES(?, ?, ?, ?, ?) IF NOT EXISTS`, secretID, secretPost.Username, secretPost.Nickname, secretPost.Content, time.Now().UTC()).Exec()
+	err = CreateSecret(secretID, secretPost, nil)
 	if err != nil {
 		constants.GenerateErrorResponse(w, r, err, http.StatusInternalServerError)
 		return
 	}
 
 	GeneratePostSecretSuccessResponse(w, r, "Your secret have been added to the secret box!", http.StatusCreated, secretID)
+}
+
+func CreateSecret(secretID gocql.UUID, secretPost SecretPost, createdTime *time.Time) error {
+	if createdTime == nil {
+		now := time.Now().UTC()
+		createdTime = &now
+	}
+	err := constants.Session.Query(`INSERT INTO `+SecretTableName+` (secret_id, username, nickname, content, created_time) 
+	VALUES(?, ?, ?, ?, ?) IF NOT EXISTS`, secretID, secretPost.Username, secretPost.Nickname, secretPost.Content, *createdTime).Exec()
+
+	return err
 }
 
 func GetSecretHandler(w http.ResponseWriter, r *http.Request) {
@@ -152,13 +162,9 @@ func DeleteSecretHandler(w http.ResponseWriter, r *http.Request) {
 	secretID := *secretDelete.SecretID
 	username := *secretDelete.Username
 
-	secretGet, err := CheckIfSecretExists(secretID)
+	_, err = CheckIfSecretExists(secretID, username)
 	if err != nil {
 		constants.GenerateErrorResponse(w, r, err, http.StatusNotFound)
-		return
-	}
-	if username != secretGet.Username {
-		constants.GenerateErrorResponse(w, r, errors.New("username doesn't match secret id"), http.StatusBadRequest)
 		return
 	}
 
@@ -172,8 +178,8 @@ func DeleteSecretHandler(w http.ResponseWriter, r *http.Request) {
 	GeneratePostSecretSuccessResponse(w, r, "The secret is successfully deleted.", http.StatusOK, gocql.UUID(secretUUID))
 }
 
-func CheckIfSecretExists(secretID string) (*SecretGet, error) {
-	iterator := constants.Session.Query("SELECT * FROM "+SecretTableName+" WHERE secret_id = ? LIMIT 1 ALLOW FILTERING", secretID).Iter()
+func CheckIfSecretExists(secretID, username string) (*SecretGet, error) {
+	iterator := constants.Session.Query("SELECT * FROM "+SecretTableName+" WHERE username = ? and secret_id = ? LIMIT 1", username, secretID).Iter()
 	if iterator.NumRows() == 0 {
 		return nil, errors.New("secret doesn't exist.")
 	}

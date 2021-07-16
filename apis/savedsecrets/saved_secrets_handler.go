@@ -8,8 +8,11 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/gocql/gocql"
+	"github.com/google/uuid"
 	"github.com/spf13/cast"
 )
 
@@ -92,6 +95,12 @@ func GetAllFavoriteSecretsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	users := user.GetUserFromDB([]user.UserPost{}, savedSecret.Username)
+	if len(users) == 0 {
+		constants.GenerateErrorResponse(w, r, errors.New("username doesn't exist"), http.StatusNotFound)
+		return
+	}
+
 	savedSecrets := []SavedSecretPost{}
 	iterator := constants.Session.Query("SELECT * FROM "+SavedSecretsTableName+" WHERE username = ? ALLOW FILTERING", savedSecret.Username).Iter()
 
@@ -125,10 +134,21 @@ func RemoveSavedSecretHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = CheckIfSecretExistsInFavoriteList(savedSecret)
-	if err != nil {
-		constants.GenerateErrorResponse(w, r, err, http.StatusNotFound)
+	secretPosts := CheckIfSecretExistsInFavoriteList(savedSecret)
+	if len(secretPosts) == 0 {
+		constants.GenerateErrorResponse(w, r, errors.New("Saved secret Not found"), http.StatusNotFound)
 		return
+	}
+
+	querys := r.URL.Query()
+	throwback := querys.Get("throwback")
+	if strings.ToLower(throwback) == "true" {
+		secretUUID, _ := uuid.Parse(secretPosts[0].SecretID)
+		err = secret.CreateSecret(gocql.UUID(secretUUID), secretPosts[0], &secretPosts[0].CreatedTime)
+		if err != nil {
+			constants.GenerateErrorResponse(w, r, err, http.StatusInternalServerError)
+			return
+		}
 	}
 
 	err = RemoveSavedSecretFromDB(savedSecret)
@@ -145,10 +165,19 @@ func RemoveSavedSecretFromDB(savedSecret SavedSecretPost) error {
 	return err
 }
 
-func CheckIfSecretExistsInFavoriteList(savedSecret SavedSecretPost) error {
+func CheckIfSecretExistsInFavoriteList(savedSecret SavedSecretPost) []secret.SecretPost {
 	iterator := constants.Session.Query("SELECT * FROM "+SavedSecretsTableName+" WHERE username = ? and secret_id = ?", savedSecret.Username, savedSecret.SecretID).Iter()
-	if iterator.NumRows() == 0 {
-		return errors.New("secret not found")
+	secretPosts := []secret.SecretPost{}
+	m := make(map[string]interface{})
+	for iterator.MapScan(m) {
+		secretPosts = append(secretPosts, secret.SecretPost{
+			Username:    m["secret_owner"].(string),
+			Nickname:    m["nickname"].(string),
+			Content:     m["content"].(string),
+			SecretID:    cast.ToString(m["secret_id"]),
+			CreatedTime: m["created_time"].(time.Time),
+		})
+		m = make(map[string]interface{})
 	}
-	return nil
+	return secretPosts
 }
