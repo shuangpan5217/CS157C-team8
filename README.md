@@ -283,14 +283,8 @@ Sample error response
     "StatusCode": 400
 }
 ```
-- Show all saved secrets in the list. `GET 127.0.0.1:3000/savedsecret`
+- Show all saved secrets in the list. `GET 127.0.0.1:3000/savedsecret?username=pan`
 
-Request Body
-```
-{
-    "username": "pan"
-}
-```
 Successful response. The body is an array.
 ```
 {
@@ -325,13 +319,7 @@ One day, if users wants to remove it from the favorite list, they have two optio
 
 1.Delete it.
 
-`DELETE 127.0.0.1:3000/savedsecret` Request Body
-```
-{
-    "secret_id": "9041de96-0874-47f0-8de3-1ae2c40d59d9",
-    "username": "pan"
-}
-```
+`DELETE 127.0.0.1:3000/savedsecret?username=pan&&secret_id=9041de96-0874-47f0-8de3-1ae2c40d59d9`
 Successful response
 ```
 {
@@ -353,7 +341,7 @@ Error response
 ```
 
 2.Throw back to the SecretBox
-`DELETE 127.0.0.1:3000/savedsecret?throwback=true` 
+`DELETE 127.0.0.1:3000/savedsecret?throwback=true&&username=pan&&secret_id=9041de96-0874-47f0-8de3-1ae2c40d59d9` 
 
 Request Body and response will be the same like above, but the secret will be added to SecretBos again.
 We can see this from Cassandra.

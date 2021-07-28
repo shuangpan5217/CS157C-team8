@@ -82,18 +82,10 @@ func AddToFavoriteList(savedSecret SavedSecretPost) error {
 }
 
 func GetAllFavoriteSecretsHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
-		return
-	}
+	querys := r.URL.Query()
+	username := querys.Get("username")
 	savedSecret := SavedSecretPost{}
-
-	err = json.Unmarshal(resp, &savedSecret)
-	if err != nil {
-		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
-		return
-	}
+	savedSecret.Username = username
 
 	users := user.GetUserFromDB([]user.UserPost{}, savedSecret.Username)
 	if len(users) == 0 {
@@ -121,18 +113,13 @@ func GetAllFavoriteSecretsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func RemoveSavedSecretHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
-		return
-	}
-	savedSecret := SavedSecretPost{}
+	querys := r.URL.Query()
+	username := querys.Get("username")
+	secret_id := querys.Get("secret_id")
 
-	err = json.Unmarshal(resp, &savedSecret)
-	if err != nil {
-		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
-		return
-	}
+	savedSecret := SavedSecretPost{}
+	savedSecret.Username = username
+	savedSecret.SecretID = secret_id
 
 	secretPosts := CheckIfSecretExistsInFavoriteList(savedSecret)
 	if len(secretPosts) == 0 {
@@ -140,18 +127,17 @@ func RemoveSavedSecretHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	querys := r.URL.Query()
 	throwback := querys.Get("throwback")
 	if strings.ToLower(throwback) == "true" {
 		secretUUID, _ := uuid.Parse(secretPosts[0].SecretID)
-		err = secret.CreateSecret(gocql.UUID(secretUUID), secretPosts[0], &secretPosts[0].CreatedTime)
+		err := secret.CreateSecret(gocql.UUID(secretUUID), secretPosts[0], &secretPosts[0].CreatedTime)
 		if err != nil {
 			constants.GenerateErrorResponse(w, r, err, http.StatusInternalServerError)
 			return
 		}
 	}
 
-	err = RemoveSavedSecretFromDB(savedSecret)
+	err := RemoveSavedSecretFromDB(savedSecret)
 	if err != nil {
 		constants.GenerateErrorResponse(w, r, errors.New("Fail removing your saved secret, please try again."), http.StatusInternalServerError)
 		return
