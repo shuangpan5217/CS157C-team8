@@ -60,6 +60,6 @@ func main() {
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS", "PATCH"})
 	origins := handlers.AllowedOrigins([]string{"*"})
 
-	fmt.Println(" => connecting to localhost:3000")
-	log.Fatal(http.ListenAndServe(":3000", handlers.CORS(headers, methods, origins)(router)))
+	fmt.Println(" => connecting to localhost:4999")
+	log.Fatal(http.ListenAndServe(":4999", handlers.CORS(headers, methods, origins)(router)))
 }

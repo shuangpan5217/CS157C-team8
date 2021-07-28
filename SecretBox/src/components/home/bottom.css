@@ -1,0 +1,36 @@
+.bottom {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    margin: 20px;
+
+
+}
+
+
+.bottom img {
+    height: 55px;
+}
+
+
+.bottom textarea {
+    height: 350px;
+    width:400px;
+}
+
+.bottom-item {
+
+}
+
+.left {
+    order: 1;
+    align-items: stretch;
+    flex-grow: 1;
+}
+
+.center {
+    order: 2;
+    flex-grow: 9;
+    align-items: center;
+}
