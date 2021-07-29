@@ -56,7 +56,7 @@ func main() {
 	router.HandleFunc("/savedsecret", savedsecrets.GetAllFavoriteSecretsHandler).Methods("GET")
 	router.HandleFunc("/savedsecret", savedsecrets.RemoveSavedSecretHandler).Methods("DELETE")
 
-	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization", "Access-Control-Allow-Origin"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS", "PATCH", "DELETE"})
 	origins := handlers.AllowedOrigins([]string{"*"})
 

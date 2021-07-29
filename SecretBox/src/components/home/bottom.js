@@ -17,7 +17,7 @@ export default class Bottom extends React.Component {
             secret_owner: "",
             created_time: "",
             secret_nickname: "",
-            savedMsgs:[],
+            savedMsgs: [],
         };
     }
 
@@ -44,12 +44,10 @@ export default class Bottom extends React.Component {
                 secret_id: data.Body.secret_id,
                 secret_owner: data.Body.username,
                 secret_nickname: data.Body.nickname,
-                created_time: new Date(data.Body.create_time).toISOString(),
+                created_time: new Date(data.Body.created_time).toISOString(),
 
 
             });
-
-
 
 
         }).catch(err => {
@@ -65,7 +63,7 @@ export default class Bottom extends React.Component {
 
     savedMsg() {
 
-        const api = "http://127.0.0.1:4999/savedsecret?username="+this.props.user;
+        const api = "http://127.0.0.1:4999/savedsecret?username=" + this.props.user;
         fetch(api, {
             method: 'GET',
         }).then((response) => {
@@ -83,8 +81,6 @@ export default class Bottom extends React.Component {
             }
 
         });
-
-
 
 
         this.setState({msgPanelState: 'saved'});
@@ -126,7 +122,8 @@ export default class Bottom extends React.Component {
                             else
                                 alert("Post secret successfully!");
                         });
-                    }}>Post</button>
+                    }}>Post
+                    </button>
                 </div>
             ),
             picked: (
@@ -134,7 +131,7 @@ export default class Bottom extends React.Component {
                     "picked"
                 }
                 >
-                    <span>{this.state.msgPicked || "No more secrets, please try again later." }</span>
+                    <span>{this.state.msgPicked || "No more secrets, please try again later."}</span>
                     {this.state.msgPicked ? <button onClick={() => {
 
 
@@ -188,29 +185,19 @@ export default class Bottom extends React.Component {
                                                     newSavedMsgs.push(this.state.savedMsgs[i]);
                                             }
 
-
                                             this.setState({savedMsgs: newSavedMsgs});
 
-                                            // const api = "http://127.0.0.1:4999/savedsecret?username=" + this.props.user
-                                            //     + "&&secret_id=" + msgObj.secret_id;
-                                            // fetch(api, {
-                                            //     method: 'DELETE',
-                                            //     mode: 'cors',
-                                            //
-                                            //     headers: {
-                                            //         'Content-Type': 'application/json',
-                                            //         // 'Content-Type': 'application/x-www-form-urlencoded',
-                                            //         'Access-Control-Allow-Origin': '*',
-                                            //         'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE',
-                                            //     },
-                                            //
-                                            // }).then((response) => {
-                                            //     console.log("response", response);
-                                            //     return response.json();
-                                            // }).then((data) => {
-                                            //     if (data.statusCode != 200)
-                                            //         alert("Delete failed!!");
-                                            // });
+                                            const api = "http://127.0.0.1:4999/savedsecret?username=" + this.props.user
+                                                + "&&secret_id=" + msgObj.secret_id;
+                                            fetch(api, {
+                                                method: 'DELETE',
+                                            }).then((response) => {
+                                                console.log("response", response);
+                                                return response.json();
+                                            }).then((data) => {
+                                                if (data.StatusCode != 200)
+                                                    alert("Delete failed!!");
+                                            });
                                         }}
                                     >🗑️</span>
                                 </li>
@@ -240,7 +227,7 @@ export default class Bottom extends React.Component {
                     </div>
                     <div className="read">
                         <button>
-                            <img src={readIcon}  onClick={this.pickMsg.bind(this)}></img>
+                            <img src={readIcon} onClick={this.pickMsg.bind(this)}></img>
                         </button>
                     </div>
                     <div className="save">
