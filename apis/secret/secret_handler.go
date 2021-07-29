@@ -186,12 +186,12 @@ func DeleteSecretFromDB(secretID, username string) error {
 }
 
 func CheckIfUsernameAndNicknameMatch(secretPost SecretPost) bool {
-	users := user.GetUserFromDB([]user.UserPost{}, secretPost.Username)
-	if len(users) == 0 {
-		return false
-	}
-	if secretPost.Nickname != users[0].Nickname {
-		return false
-	}
+// 	users := user.GetUserFromDB([]user.UserPost{}, secretPost.Username)
+// 	if len(users) == 0 {
+// 		return false
+// 	}
+// 	if secretPost.Nickname != users[0].Nickname {
+// 		return false
+// 	}
 	return true
 }
