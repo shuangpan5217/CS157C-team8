@@ -44,7 +44,7 @@ export default class Bottom extends React.Component {
                 secret_id: data.Body.secret_id,
                 secret_owner: data.Body.username,
                 secret_nickname: data.Body.nickname,
-                created_time: new Date(data.Body.create_time).toISOString,
+                created_time: new Date(data.Body.create_time).toISOString(),
 
 
             });
@@ -179,6 +179,40 @@ export default class Bottom extends React.Component {
                             this.state.savedMsgs.map(msgObj => (
                                 <li>
                                     <span>{msgObj.nickname} : {msgObj.content} </span>
+                                    <span
+                                        onClick={() => {
+                                            let newSavedMsgs = [];
+                                            // newSavedMsgs = newSavedMsgs.concat(this.state.savedMsgs) ;
+                                            for (let i = 0; i < this.state.savedMsgs.length; ++i) {
+                                                if (this.state.savedMsgs[i].secret_id != msgObj.secret_id)
+                                                    newSavedMsgs.push(this.state.savedMsgs[i]);
+                                            }
+
+
+                                            this.setState({savedMsgs: newSavedMsgs});
+
+                                            // const api = "http://127.0.0.1:4999/savedsecret?username=" + this.props.user
+                                            //     + "&&secret_id=" + msgObj.secret_id;
+                                            // fetch(api, {
+                                            //     method: 'DELETE',
+                                            //     mode: 'cors',
+                                            //
+                                            //     headers: {
+                                            //         'Content-Type': 'application/json',
+                                            //         // 'Content-Type': 'application/x-www-form-urlencoded',
+                                            //         'Access-Control-Allow-Origin': '*',
+                                            //         'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE',
+                                            //     },
+                                            //
+                                            // }).then((response) => {
+                                            //     console.log("response", response);
+                                            //     return response.json();
+                                            // }).then((data) => {
+                                            //     if (data.statusCode != 200)
+                                            //         alert("Delete failed!!");
+                                            // });
+                                        }}
+                                    >🗑️</span>
                                 </li>
 
                             ))
