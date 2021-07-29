@@ -136,33 +136,11 @@ func GetOneSecretFromDB(username string) (*SecretGet, error) {
 }
 
 func DeleteSecretHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
-		return
-	}
+	querys := r.URL.Query()
+	username := querys.Get("username")
+	secretID := querys.Get("secret_id")
 
-	secretDelete := SecretDelete{}
-	json.Unmarshal(resp, &secretDelete)
-	if err != nil {
-		constants.GenerateErrorResponse(w, r, err, http.StatusBadRequest)
-		return
-	}
-
-	if secretDelete.SecretID == nil {
-		constants.GenerateErrorResponse(w, r, errors.New("secret id is not set."), http.StatusBadRequest)
-		return
-	}
-
-	if secretDelete.Username == nil {
-		constants.GenerateErrorResponse(w, r, errors.New("username is not set."), http.StatusBadRequest)
-		return
-	}
-
-	secretID := *secretDelete.SecretID
-	username := *secretDelete.Username
-
-	_, err = CheckIfSecretExists(secretID, username)
+	_, err := CheckIfSecretExists(secretID, username)
 	if err != nil {
 		constants.GenerateErrorResponse(w, r, err, http.StatusNotFound)
 		return
