@@ -214,15 +214,10 @@ Error response
     "StatusCode": 500
 }
 ```
-- Delete a secret `DELETE 127.0.0.1:3000/secret` 
+- Delete a secret `DELETE 127.0.0.1:3000/secret?username=pan&&secret_id=fe5c05bf-fae3-445b-aa64-d8c3cebdaa26` 
+username is the owner of the secret.
+(This api will be called when the user doesn't want to throw it back to secretBox after getting a secret or after save)
 
-(This api will be called when the user doesn't want to throw it back to secretBox after getting a secret)
-```
-{
-    "username": "shuang",
-    "secret_id": "fe5c05bf-fae3-445b-aa64-d8c3cebdaa26"
-}
-```
 Successful response
 ```
 {
