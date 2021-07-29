@@ -4,6 +4,10 @@ import iconImage from '../../image/user.jpeg';
 
 export default class Top extends React.Component {
 
+    constructor(props) {
+        super(props);
+    }
+
     logout() {
         this.props.setIsLoggedIn(false);
         this.props.setUser(null);
@@ -12,8 +16,9 @@ export default class Top extends React.Component {
 
 
     }
+
     render() {
-        return(
+        return (
             <div className="top">
                 <div className="icon">
                     <img src={iconImage}
@@ -22,17 +27,20 @@ export default class Top extends React.Component {
                 </div>
                 <div className="info">
                     <div className="nickname info-item">
-                        Nickname: {this.props.nickname}
+                        <span>Nickname: {this.props.nickname}</span>
+                        <span>🖊</span>
                     </div>
                     <div className="username info-item">
-                        UserName: {this.props.user}
+                        <span> UserName: {this.props.user}</span>
+
                     </div>
                     <div className="description info-item">
-                         Description: {this.props.description}
+                        <span>Description: {this.props.description}</span>
+                        <span>🖊</span>
                     </div>
                 </div>
                 <div className="logout">
-                    <button onClick={this.logout}>
+                    <button onClick={this.logout.bind(this)}>
                         Logout
                     </button>
 

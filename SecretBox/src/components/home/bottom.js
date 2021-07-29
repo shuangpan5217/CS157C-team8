@@ -17,7 +17,6 @@ export default class Bottom extends React.Component {
             secret_owner: "",
             created_time: "",
             secret_nickname: "",
-
             savedMsgs:[],
         };
     }
@@ -66,7 +65,7 @@ export default class Bottom extends React.Component {
 
     savedMsg() {
 
-        const api = "http://127.0.0.1:4999/savedsecret&username="+this.props.user;
+        const api = "http://127.0.0.1:4999/savedsecret?username="+this.props.user;
         fetch(api, {
             method: 'GET',
         }).then((response) => {
@@ -77,10 +76,12 @@ export default class Bottom extends React.Component {
             console.log("data", JSON.stringify(data));
 
 
-            if (data.StatusCode != 201)
+            if (data.StatusCode != 200)
                 alert("Get saved secrets failed!!");
-            else
-                alert("Get saved secrets successfully!");
+            else {
+                this.setState({savedMsgs: data.Body.saved_secrets})
+            }
+
         });
 
 
