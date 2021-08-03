@@ -1,1 +1,1 @@
-SecretBox Fronted by Yunlin Xie
+SecretBox Frontend and API calls by Yunlin Xie
